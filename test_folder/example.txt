@@ -1,0 +1,6 @@
+Rust is fast
+Rust is memory safe
+Searching lines is useful
+
+Ok. Now it's time to learn Rust.
+What about rust?
