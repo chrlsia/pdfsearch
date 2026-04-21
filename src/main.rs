@@ -20,6 +20,10 @@ fn main() {
         .map(|w| w.to_lowercase())
         .collect();
 
+    if words.is_empty() || words.len() > 3 {
+    println!("Please enter between 1 and 3 words.");
+    return;
+}
     let folder = "./test_folder";
 
     // --- 3. Read folder ---
