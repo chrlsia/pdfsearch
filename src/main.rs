@@ -16,7 +16,7 @@ fn main() {
             let content = fs::read_to_string(&path).unwrap();
 
             for (line_number, line) in content.lines().enumerate() {
-                if line.contains("Rust") {
+                if line.contains("Rust") && line.contains("safe") {
                     println!(
                         "Found in file: {:?} at line {} -> {}",
                         path, line_number + 1, line
