@@ -1,0 +1,19 @@
+Problem-based Learning
+Choose a problem you want to solve.
+Let the problem drive the introduction of new concepts and
+techniques.
+It flips the hierarchy you are used to: the material you are studying
+is not relevant because somebody claims it is, it is relevant because
+it is useful to get closer to a solution.
+You learn new techniques and when it makes sense to reach for
+them.
+The devil is in the details: a problem-based learning path can be
+delightful, yet it is painfully easy to misjudge how challenging each
+step of the journey is going to be.
+Our driving example needs to be:
+small enough for us to tackle in a book without cutting corners;
+complex enough to surface most of the key themes that come
+up in bigger systems;
+interesting enough to keep readers engaged as they progress.
+We will go for an email newsletter - the next section will detail the
+functionality we plan to cover1.

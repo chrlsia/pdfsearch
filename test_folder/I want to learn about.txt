@@ -1,0 +1,5 @@
+I want to learn (create) about data bases  in rust following the idea of Problem-based Learning.
+Choose a problem we have to solve. Use pareto principle in relation to what you will teach me (20) in order to apply to different situations (80).
+Let the problem drive the introduction of new concepts and techniques.
+Use simple, short and clear examples in rust to internalize the techniques.
+Before you introduce a new concept just stop in order to study what you gave me and if I have any question to ask about it. Please take into your cosnideration that the Knowledge in order to be given correctly should follow a structure from known to little unknown and this goes on. Can you do that?

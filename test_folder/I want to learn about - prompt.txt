@@ -1,0 +1,6 @@
+I want to learn about HashMaps in rust following the idea of Problem-based Learning.
+Choose a problem we have to solve.
+Let the problem drive the introduction of new concepts and techniques.
+Use simple, short examples in rust to internalize the techniques.
+Before you introduce a new concept just stop in order to study what you gave me and if I have any question to ask about it.
+Can you do that?
