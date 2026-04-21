@@ -1,2 +1,4 @@
 1- Rust
 1.2 
+again Rust is memory safe and
+memory safe is an attribute of Rust
