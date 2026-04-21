@@ -57,3 +57,21 @@ fn main() {
         }
     }
 }
+
+/*
+
+cargo r -q -- -w rust safe -d ./test_folder
+Scanning file: "./test_folder/exa2.pdf"...
+
+Found in file: "./test_folder/exa2.pdf" at line 4
+> Rust is memory safe
+Scanning file: "./test_folder/Lesson+11+-+Time+Order+Words.pdf"...
+Scanning file: "./test_folder/exa1.pdf"...
+
+Found in file: "./test_folder/exa1.pdf" at line 4
+> Rust is memory safe
+Scanning file: "./test_folder/example.pdf"...
+
+Found in file: "./test_folder/example.pdf" at line 4
+> Rust is memory safe
+*/
