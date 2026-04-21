@@ -17,13 +17,14 @@ fn main() {
 
             let query = "Rust safe"; // later this will come from user
 
-            let words: Vec<&str> = query.split_whitespace().collect();
+            let words: Vec<String> = query.split_whitespace().map(|w| w.to_lowercase()).collect();
 
             for (line_number, line) in content.lines().enumerate() {
+                let line_lower=line.to_lowercase();
                 let mut all_found = true;
 
                 for word in &words {
-                    if !line.contains(word) {
+                    if !line_lower.contains(word) {
                         all_found = false;
                         break;
                     }
