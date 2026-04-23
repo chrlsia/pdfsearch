@@ -1,6 +1,6 @@
 use clap::Parser;
 use walkdir::WalkDir;
-use pdf_extract::extract_text;
+use std::process::Command;
 
 #[derive(Parser)]
 struct Args {
@@ -17,7 +17,7 @@ fn main() {
     // --- Parse CLI arguments ---
     let args = Args::parse();
 
-    // Normalize words (lowercase)
+    // Normalize words (case-insensitive search)
     let words: Vec<String> = args
         .words
         .iter()
@@ -35,18 +35,28 @@ fn main() {
 
         let path = entry.path();
 
-        // Only process files ending with .pdf
         if path.is_file() {
             let path_str = path.to_string_lossy();
 
-            if path_str.ends_with(".pdf") {
+            if path_str.to_lowercase().ends_with(".pdf") {
                 println!("Scanning file: {:?}...", path);
 
-                // Extract text from PDF
-                let content = match extract_text(&path) {
-                    Ok(text) => text,
-                    Err(_) => {
-                        println!("Could not read PDF: {:?}", path);
+                // --- Call pdftotext ---
+                let output = Command::new("pdftotext")
+                    .arg(&path)
+                    .arg("-") // output to stdout
+                    .output();
+
+                let content = match output {
+                    Ok(out) if out.status.success() => {
+                        String::from_utf8_lossy(&out.stdout).to_string()
+                    }
+                    Ok(_) => {
+                        println!("pdftotext failed on: {:?}", path);
+                        continue;
+                    }
+                    Err(e) => {
+                        println!("Error running pdftotext on {:?}: {}", path, e);
                         continue;
                     }
                 };
@@ -77,23 +87,3 @@ fn main() {
         }
     }
 }
-
-/*
- cargo run -- -w rust safe -d ./test_folder
-   Compiling seach_pdf v0.1.0 (/home/cs/Documents/rust_projects/chatGPT/seach_pdf)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.92s
-     Running `target/debug/seach_pdf -w rust safe -d ./test_folder`
-Scanning file: "./test_folder/exa2.pdf"...
-
-Found in file: "./test_folder/exa2.pdf" at line 4
-> Rust is memory safe
-Scanning file: "./test_folder/Lesson+11+-+Time+Order+Words.pdf"...
-Scanning file: "./test_folder/exa1.pdf"...
-
-Found in file: "./test_folder/exa1.pdf" at line 4
-> Rust is memory safe
-Scanning file: "./test_folder/example.pdf"...
-
-Found in file: "./test_folder/example.pdf" at line 4
-> Rust is memory safe
-*/
