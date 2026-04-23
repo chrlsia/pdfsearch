@@ -19,4 +19,3 @@ brew install poppler
 Install Poppler manually
 
 Add to PATH
-
