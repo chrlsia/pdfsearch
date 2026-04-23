@@ -54,7 +54,7 @@ fn highlight_line(line: &str, words: &[String]) -> String {
                     .to_lowercase();
 
                 if normalized == lower_word {
-                    token.yellow().bold().to_string()
+                    token.yellow().underline().bold().to_string()
                 } else {
                     token.to_string()
                 }
