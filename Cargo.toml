@@ -8,3 +8,4 @@ pdf-extract = "0.6"
 clap = { version = "4", features = ["derive"] }
 walkdir = "2"
 rayon = "1.8"
+indicatif="0.17"

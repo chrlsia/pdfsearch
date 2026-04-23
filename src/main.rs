@@ -3,11 +3,13 @@ use walkdir::WalkDir;
 use rayon::prelude::*;
 use rayon::ThreadPoolBuilder;
 use std::process::Command;
+use indicatif::{ProgressBar, ProgressStyle};
+use std::sync::Arc;
 
 #[derive(Parser)]
 struct Args {
-    /// Words to search (1–4 words)
-    #[arg(short, long, num_args = 1..=4)]
+    /// Words to search (1–3 words)
+    #[arg(short, long, num_args = 1..=3)]
     words: Vec<String>,
 
     /// Directories containing PDFs (supports multiple)
@@ -32,7 +34,7 @@ fn main() {
     // --- Parse CLI arguments ---
     let args = Args::parse();
 
-    // Configure Rayon thread pool
+    // --- Configure Rayon threads ---
     if let Some(n) = args.threads {
         ThreadPoolBuilder::new()
             .num_threads(n)
@@ -49,7 +51,7 @@ fn main() {
 
     let folders = args.dirs;
 
-    // --- Collect all PDF files from all directories ---
+    // --- Collect all PDF files ---
     let pdf_files: Vec<_> = folders
         .iter()
         .flat_map(|folder| {
@@ -68,11 +70,20 @@ fn main() {
 
     println!("Found {} PDF files.\n", pdf_files.len());
 
-    // --- Process files in parallel ---
-    pdf_files.par_iter().for_each(|entry| {
-        let path = entry.path();
+    // --- Progress bar ---
+    let pb = Arc::new(ProgressBar::new(pdf_files.len() as u64));
 
-        println!("🔎︎ Scanning file: {:?}...", path);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("[{bar:40.cyan/blue}] {pos}/{len} files")
+            .unwrap(),
+    );
+
+    // --- Parallel processing ---
+    pdf_files.par_iter().for_each(|entry| {
+        let pb = pb.clone();
+
+        let path = entry.path();
 
         // Run pdftotext
         let output = Command::new("pdftotext")
@@ -84,12 +95,8 @@ fn main() {
             Ok(out) if out.status.success() => {
                 String::from_utf8_lossy(&out.stdout).to_string()
             }
-            Ok(_) => {
-                println!("pdftotext failed on: {:?}", path);
-                return;
-            }
-            Err(e) => {
-                println!("Error running pdftotext on {:?}: {}", path, e);
+            _ => {
+                pb.inc(1);
                 return;
             }
         };
@@ -112,12 +119,16 @@ fn main() {
 
             if all_found {
                 println!(
-                    "\n😄 Found in file: {:?} at line {}",
+                    "\nFound in file: {:?} at line {}",
                     path,
                     line_number + 1
                 );
-                println!("💰 {}", line);
+                println!("> {}", line);
             }
         }
+
+        pb.inc(1);
     });
+
+    pb.finish_with_message("Done");
 }
