@@ -6,15 +6,17 @@ This tool depends on:
 
 So users must still install:
 
-```linux
+## linux
+
 sudo apt install poppler-utils
-```
 
-```macOS
+## macOS
+
 brew install poppler
-```
 
-```Windows
+## Windows
+
 Install Poppler manually
+
 Add to PATH
-```
+
