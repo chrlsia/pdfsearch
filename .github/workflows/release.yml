@@ -39,13 +39,30 @@ jobs:
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Copy binary
+      - name: Prepare dist folder
         run: |
           mkdir dist
           cp target/${{ matrix.target }}/release/${{ matrix.binary_name }} dist/
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      # --- NEW: zip binaries per platform ---
+      - name: Create archive (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          cd dist
+          tar -czf pdfsearch-${{ matrix.target }}.tar.gz ${{ matrix.binary_name }}
+
+      - name: Create archive (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd dist
+          powershell Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath pdfsearch-${{ matrix.target }}.zip
+
+      # --- NEW: Create GitHub Release ---
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: ${{ matrix.binary_name }}-${{ matrix.target }}
-          path: dist/
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
