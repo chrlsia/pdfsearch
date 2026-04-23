@@ -36,6 +36,35 @@ struct MatchResult {
     matches: Vec<(usize, String)>,
 }
 
+
+fn highlight_line(line: &str, words: &[String]) -> String {
+    let mut result = line.to_string();
+
+    for word in words {
+        let lower_word = word.to_lowercase();
+
+        // Replace case-insensitively (simple approach)
+        result = result
+            .split_whitespace()
+            .map(|token| {
+                let normalized: String = token
+                    .chars()
+                    .filter(|c| c.is_alphanumeric())
+                    .collect::<String>()
+                    .to_lowercase();
+
+                if normalized == lower_word {
+                    token.red().bold().to_string()
+                } else {
+                    token.to_string()
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+    }
+
+    result
+}
 fn main() {
     // --- Parse CLI arguments ---
     let args = Args::parse();
@@ -154,7 +183,8 @@ fn main() {
         println!("\n📜File: {}", result.file);
 
         for (line_number, line) in result.matches {
-            println!("💰[{}] {}", line_number, line.yellow().bold());
+            let highlighted = highlight_line(&line, &words);
+            println!("💰[{}] {}", line_number, highlighted);
         }
     }
 }
