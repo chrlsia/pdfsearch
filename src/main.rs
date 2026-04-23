@@ -80,7 +80,7 @@ fn main() {
                             path,
                             line_number + 1
                         );
-                        println!("> {}", line);
+                        println!("👉 {}", line);
                     }
                 }
             }
