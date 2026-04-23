@@ -1,6 +1,7 @@
 use clap::Parser;
 use walkdir::WalkDir;
 use rayon::prelude::*;
+use rayon::ThreadPoolBuilder;
 use std::process::Command;
 
 #[derive(Parser)]
@@ -12,6 +13,10 @@ struct Args {
     /// Directories containing PDFs (supports multiple)
     #[arg(short, long, num_args = 1..)]
     dirs: Vec<String>,
+
+    /// Number of threads (optional)
+    #[arg(short = 't', long)]
+    threads: Option<usize>,
 }
 
 // Normalize words: remove punctuation + lowercase
@@ -26,6 +31,14 @@ fn normalize_word(word: &str) -> String {
 fn main() {
     // --- Parse CLI arguments ---
     let args = Args::parse();
+
+    // Configure Rayon thread pool
+    if let Some(n) = args.threads {
+        ThreadPoolBuilder::new()
+            .num_threads(n)
+            .build_global()
+            .unwrap();
+    }
 
     // Normalize search words
     let words: Vec<String> = args
