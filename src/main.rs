@@ -9,9 +9,9 @@ struct Args {
     #[arg(short, long, num_args = 1..=3)]
     words: Vec<String>,
 
-    /// Directory containing PDFs
-    #[arg(short, long)]
-    dir: String,
+    /// Directories containing PDFs (supports multiple)
+    #[arg(short, long, num_args = 1..)]
+    dirs: Vec<String>,
 }
 
 // Normalize words: remove punctuation + lowercase
@@ -34,12 +34,16 @@ fn main() {
         .map(|w| normalize_word(w))
         .collect();
 
-    let folder = args.dir;
+    let folders = args.dirs;
 
-    // --- Collect all PDF files first ---
-    let pdf_files: Vec<_> = WalkDir::new(&folder)
-        .into_iter()
-        .filter_map(|e| e.ok())
+    // --- Collect all PDF files from all directories ---
+    let pdf_files: Vec<_> = folders
+        .iter()
+        .flat_map(|folder| {
+            WalkDir::new(folder)
+                .into_iter()
+                .filter_map(|e| e.ok())
+        })
         .filter(|e| e.path().is_file())
         .filter(|e| {
             e.path()
@@ -55,7 +59,7 @@ fn main() {
     pdf_files.par_iter().for_each(|entry| {
         let path = entry.path();
 
-        println!("🔎 Scanning file: {:?}...", path);
+        println!("🔎︎ Scanning file: {:?}...", path);
 
         // Run pdftotext
         let output = Command::new("pdftotext")
@@ -95,7 +99,7 @@ fn main() {
 
             if all_found {
                 println!(
-                    "\nFound in file: {:?} at line {}",
+                    "\n😄 Found in file: {:?} at line {}",
                     path,
                     line_number + 1
                 );
