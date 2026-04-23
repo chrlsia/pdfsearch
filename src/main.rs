@@ -6,7 +6,7 @@ use std::process::Command;
 #[derive(Parser)]
 struct Args {
     /// Words to search (1–3 words)
-    #[arg(short, long, num_args = 1..=3)]
+    #[arg(short, long, num_args = 1..=4)]
     words: Vec<String>,
 
     /// Directories containing PDFs (supports multiple)
