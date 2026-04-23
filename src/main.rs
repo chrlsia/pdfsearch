@@ -13,15 +13,24 @@ struct Args {
     dir: String,
 }
 
+// Normalize words: remove punctuation + lowercase
+fn normalize_word(word: &str) -> String {
+    word
+        .chars()
+        .filter(|c| c.is_alphanumeric())
+        .collect::<String>()
+        .to_lowercase()
+}
+
 fn main() {
     // --- Parse CLI arguments ---
     let args = Args::parse();
 
-    // Normalize words (case-insensitive search)
+    // Normalize search words
     let words: Vec<String> = args
         .words
         .iter()
-        .map(|w| w.to_lowercase())
+        .map(|w| normalize_word(w))
         .collect();
 
     let folder = args.dir;
@@ -30,7 +39,7 @@ fn main() {
     for entry in WalkDir::new(&folder) {
         let entry = match entry {
             Ok(e) => e,
-            Err(_) => continue, // skip unreadable entries
+            Err(_) => continue,
         };
 
         let path = entry.path();
@@ -38,13 +47,14 @@ fn main() {
         if path.is_file() {
             let path_str = path.to_string_lossy();
 
+            // Case-insensitive .pdf check
             if path_str.to_lowercase().ends_with(".pdf") {
                 println!("Scanning file: {:?}...", path);
 
                 // --- Call pdftotext ---
                 let output = Command::new("pdftotext")
                     .arg(&path)
-                    .arg("-") // output to stdout
+                    .arg("-")
                     .output();
 
                 let content = match output {
@@ -63,12 +73,15 @@ fn main() {
 
                 // --- Search lines ---
                 for (line_number, line) in content.lines().enumerate() {
-                    let line_lower = line.to_lowercase();
+                    let line_words: Vec<String> = line
+                        .split_whitespace()
+                        .map(|w| normalize_word(w))
+                        .collect();
 
                     let mut all_found = true;
 
                     for word in &words {
-                        if !line_lower.contains(word) {
+                        if !line_words.contains(word) {
                             all_found = false;
                             break;
                         }
@@ -80,7 +93,7 @@ fn main() {
                             path,
                             line_number + 1
                         );
-                        println!("👉 {}", line);
+                        println!("> {}", line);
                     }
                 }
             }
