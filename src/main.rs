@@ -66,6 +66,9 @@ fn highlight_line(line: &str, words: &[String]) -> String {
     result
 }
 fn main() {
+    // clear the screen
+    // clearscreen::clear().expect("Failed to clear screen");
+
     // --- Parse CLI arguments ---
     let args = Args::parse();
 
@@ -180,7 +183,7 @@ fn main() {
 
     // --- Print clean, ordered output ---
     for result in results {
-        println!("\n📜File: {}", result.file.red().bold());
+        println!("\n📜File: {}", result.file.blue().bold());
 
         for (line_number, line) in result.matches {
             let highlighted = highlight_line(&line, &words);
