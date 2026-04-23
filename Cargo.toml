@@ -1,5 +1,5 @@
 [package]
-name = "search_pdf"
+name = "pdfsearch"
 version = "0.1.0"
 edition = "2024"
 
@@ -11,3 +11,12 @@ rayon = "1.8"
 indicatif="0.17"
 colored="2"
 # clearscreen="4.0.3"
+
+[package.metadata.deb]
+maintainer = "Chris Siann"
+depends = "poppler-utils"
+section = "utility"
+priority = "optional"
+assets = [
+    ["target/release/pdfsearch", "usr/bin/", "755"],
+]
