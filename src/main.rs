@@ -30,6 +30,12 @@ fn normalize_word(word: &str) -> String {
         .to_lowercase()
 }
 
+// Store matches per file
+struct MatchResult {
+    file: String,
+    matches: Vec<(usize, String)>,
+}
+
 fn main() {
     // --- Parse CLI arguments ---
     let args = Args::parse();
@@ -79,56 +85,76 @@ fn main() {
             .unwrap(),
     );
 
-    // --- Parallel processing ---
-    pdf_files.par_iter().for_each(|entry| {
-        let pb = pb.clone();
+    // --- Parallel processing with result collection ---
+    let results: Vec<MatchResult> = pdf_files
+        .par_iter()
+        .map(|entry| {
+            let pb = pb.clone();
+            let path = entry.path();
 
-        let path = entry.path();
+            let mut matches = Vec::new();
 
-        // Run pdftotext
-        let output = Command::new("pdftotext")
-            .arg(path)
-            .arg("-")
-            .output();
+            let output = Command::new("pdftotext")
+                .arg(path)
+                .arg("-")
+                .output();
 
-        let content = match output {
-            Ok(out) if out.status.success() => {
-                String::from_utf8_lossy(&out.stdout).to_string()
-            }
-            _ => {
-                pb.inc(1);
-                return;
-            }
-        };
+            let content = match output {
+                Ok(out) if out.status.success() => {
+                    String::from_utf8_lossy(&out.stdout).to_string()
+                }
+                _ => {
+                    pb.inc(1);
+                    return None;
+                }
+            };
 
-        // --- Search lines ---
-        for (line_number, line) in content.lines().enumerate() {
-            let line_words: Vec<String> = line
-                .split_whitespace()
-                .map(|w| normalize_word(w))
-                .collect();
+            for (line_number, line) in content.lines().enumerate() {
+                let line_words: Vec<String> = line
+                    .split_whitespace()
+                    .map(|w| normalize_word(w))
+                    .collect();
 
-            let mut all_found = true;
+                let mut all_found = true;
 
-            for word in &words {
-                if !line_words.contains(word) {
-                    all_found = false;
-                    break;
+                for word in &words {
+                    if !line_words.contains(word) {
+                        all_found = false;
+                        break;
+                    }
+                }
+
+                if all_found {
+                    matches.push((line_number + 1, line.to_string()));
                 }
             }
 
-            if all_found {
-                println!(
-                    "\nFound in file: {:?} at line {}",
-                    path,
-                    line_number + 1
-                );
-                println!("> {}", line);
-            }
-        }
+            pb.inc(1);
 
-        pb.inc(1);
-    });
+            if matches.is_empty() {
+                None
+            } else {
+                Some(MatchResult {
+                    file: path.to_string_lossy().to_string(),
+                    matches,
+                })
+            }
+        })
+        .filter_map(|r| r)
+        .collect();
 
     pb.finish_with_message("Done");
+
+    // --- Sort results by file name ---
+    let mut results = results;
+    results.sort_by(|a, b| a.file.cmp(&b.file));
+
+    // --- Print clean, ordered output ---
+    for result in results {
+        println!("\n📜File: {}", result.file);
+
+        for (line_number, line) in result.matches {
+            println!("💰[{}] {}", line_number, line);
+        }
+    }
 }
