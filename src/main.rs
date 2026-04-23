@@ -180,7 +180,7 @@ fn main() {
 
     // --- Print clean, ordered output ---
     for result in results {
-        println!("\n📜File: {}", result.file);
+        println!("\n📜File: {}", result.file.red().bold());
 
         for (line_number, line) in result.matches {
             let highlighted = highlight_line(&line, &words);
