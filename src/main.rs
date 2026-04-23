@@ -5,7 +5,7 @@ use rayon::ThreadPoolBuilder;
 use std::process::Command;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::sync::Arc;
-
+use colored::*;
 #[derive(Parser)]
 struct Args {
     /// Words to search (1–4 words)
@@ -154,7 +154,7 @@ fn main() {
         println!("\n📜File: {}", result.file);
 
         for (line_number, line) in result.matches {
-            println!("💰[{}] {}", line_number, line);
+            println!("💰[{}] {}", line_number, line.yellow().bold());
         }
     }
 }
