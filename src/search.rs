@@ -29,7 +29,7 @@ pub fn run_search(args: Args) {
 
     let folders = expand_dirs(&args.dirs);
 
-    println!("\nSearching in directories:\n {:?}\n", folders);
+    println!("\n🔎︎ Searching in directories(📁):\n {:?}\n", folders);
 
     let pdf_files: Vec<_> = folders.iter()
         .flat_map(|folder| {
@@ -41,7 +41,7 @@ pub fn run_search(args: Args) {
         .filter(|e| e.path().to_string_lossy().to_lowercase().ends_with(".pdf"))
         .collect();
 
-    println!("Found {} PDF files.\n", pdf_files.len());
+    println!("Found {} PDF files 📜.\n", pdf_files.len());
 
     let pb = Arc::new(ProgressBar::new(pdf_files.len() as u64));
     pb.set_style(
